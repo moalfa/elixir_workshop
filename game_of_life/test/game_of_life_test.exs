@@ -54,4 +54,11 @@ defmodule GameOfLifeTest do
                                               [0,0,0]]
   end
 
+  describe "ncurses" do
+  test "clear screeen and redraw" do
+    assert  [[0, 0, 0], [0, 0, 0]] == GameOfLife.sample3
+    |> GameOfLife.interactive_gen_live(10)
+    end
+    end
+
 end

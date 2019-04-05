@@ -14,19 +14,62 @@ defmodule GameOfLife do
          [0,1,0,1,0],
          [0,1,0,0,0]]
 
+  @offset_y 10
+
  def sample1, do: @live1
  def sample2, do: @live2
  def sample3, do: @live3
 
 
+  def interactive_gen_live(life, count_generations) do
+    ExNcurses.initscr()
+    ExNcurses.newwin(100, 40, 1 , 0)
+    ExNcurses.noecho()
+    ExNcurses.curs_set(0)
+    x = gen_live(life, count_generations)
+    ExNcurses.endwin()
+    x
+  end
 
+  def draw_grid(y, x) do
+    0..y - 1
+    |> Enum.each(fn y ->
+      0..x - 1
+      |> Enum.each(fn x ->
+        ExNcurses.mvaddstr(2, 0 , "x: #{inspect x}, y: #{inspect y}")
+           ExNcurses.mvaddstr(y * 3 + @offset_y, x * 3 , " - ")
+           ExNcurses.mvaddstr(y * 3 + 1 + @offset_y, x * 3, "| |")
+           ExNcurses.mvaddstr(y * 3 + 2 + @offset_y, x * 3, " - ")
+      end)
+    end)
+  end
+
+  def draw_cell(life, y, x) do
+    0..y - 1
+    |> Enum.each(fn y ->
+      0..x - 1
+      |> Enum.each(fn x ->
+        cell = life |> Enum.fetch!(y) |> Enum.fetch!(x)
+
+        if(cell == 1) do
+          ExNcurses.mvaddstr(y * 3 + 1 + @offset_y, x * 3 + 1, "*")
+        end
+      end)
+    end)
+  end
 
   def gen_live(life, 0) do
     next_gen(life)
   end
   def gen_live(life, count_generations) do
+    ExNcurses.clear()
+    draw_grid(length(life), length(Enum.fetch!(life, 0)))
+    draw_cell(life, length(life), length(Enum.fetch!(life, 0)))
+    ExNcurses.mvaddstr(0, 2, "#{inspect life}")
+    ExNcurses.refresh()
+    Process.sleep(2000)
+
 #    IO.inspect life
-    Apex.ap life
     gen_live(next_gen(life), count_generations - 1)
   end
 
